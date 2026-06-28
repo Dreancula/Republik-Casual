@@ -2,86 +2,40 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kategori; // Pastikan namespace model Kategori sesuai
 use Illuminate\Http\Request;
-use App\Models\Kategori;
 
 class KategoriController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
-        return view('backend.v_kategori.index', [
-            'judul' => 'Data Kategori',
-            'index' => $kategori
-        ]);
+        $kategori = Kategori::orderBy('created_at', 'desc')->get();
+        return view('backend.kategori.index', compact('kategori'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('backend.v_kategori.create', [
-            'judul' => 'Kategori',
-        ]);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        // dd($request);
-        $validatedData = $request->validate([
-            'nama_kategori' => 'required|max:255|unique:kategori',
+        $request->validate([
+            'nama_kategori' => 'required|string|max:255|unique:kategori,nama_kategori'
         ]);
-        Kategori::create($validatedData);
-        return redirect()->route('backend.kategori.index')->with('success', 'Data berhasil tersimpan');
-    }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        $kategori = Kategori::find($id);
-        return view('backend.v_kategori.edit', [
-            'judul' => 'Kategori',
-            'edit' => $kategori
+        Kategori::create([
+            'nama_kategori' => $request->nama_kategori
         ]);
+
+        return redirect()->back()->with('success', 'Kategori baru berhasil ditambahkan!');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy($id)
     {
-        $rules = [
-            'nama_kategori' => 'required|max:255|unique:kategori,nama_kategori,' . $id,
-        ];
-        $validatedData = $request->validate($rules);
-        Kategori::where('id', $id)->update($validatedData);
-        return redirect()->route('backend.kategori.index')->with('success', 'Data berhasil diperbaharui');
-    }
+        $kategori = Kategori::findOrFail($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        $user = Kategori::findOrFail($id);
-        $user->delete();
-        return redirect()->route('backend.kategori.index')->with('success', 'Data berhasil dihapus');
+        // Proteksi jika kategori masih dipakai di produk
+        if ($kategori->produk()->count() > 0) {
+            return redirect()->back()->with('error', 'Gagal menghapus! Kategori ini masih terikat dengan produk aktif.');
+        }
+
+        $kategori->delete();
+        return redirect()->back()->with('success', 'Kategori berhasil dihapus!');
     }
 }

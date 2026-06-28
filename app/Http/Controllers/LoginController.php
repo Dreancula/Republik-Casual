@@ -9,7 +9,7 @@ class LoginController extends Controller
 {
     public function loginBackend()
     {
-        return view('backend.v_login.login', [
+        return view('auth.login', [
             'judul' => 'Login',
         ]);
     }
@@ -22,12 +22,12 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
-            if (Auth::user()->status == 0) {
+            if (Auth::user()->status == 'nonaktif') {
                 Auth::logout();
                 return back()->with('error', 'User belum aktif');
             }
             $request->session()->regenerate();
-            return redirect()->intended(route('backend.beranda'));
+            return redirect()->intended(route('admin.dashboard'));
         }
         return back()->with('error', 'Login Gagal');
     }
@@ -37,7 +37,6 @@ class LoginController extends Controller
         Auth::logout();
         request()->session()->invalidate();
         request()->session()->regenerateToken();
-        return redirect(route('backend.login'));
+        return redirect(route('login'));
     }
-
 }

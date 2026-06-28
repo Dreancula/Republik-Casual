@@ -1,7 +1,7 @@
 
 <div id="topbar"
      class="sticky top-0 z-40
-            bg-[#f4f4f4]/70 dark:bg-[#050505]/70
+            bg-[#f4f4f4]/70
             backdrop-blur-2xl
             border-b border-transparent
             px-6 md:px-10
@@ -13,13 +13,13 @@
     <div>
 
         <h2 id="topbarTitle"
-    class="text-4xl font-bold text-[#111111] dark:text-white transition-all duration-300">
+    class="text-4xl font-bold text-[#111111] transition-all duration-300">
 
             {{ $title ?? 'Dashboard' }}
 
         </h2>
 
-        <p class="mt-3 text-black/50 dark:text-white/40">
+        <p class="mt-3 text-black/50">
 
             {{ $subtitle ?? 'Republik Casual Admin Panel' }}
 
@@ -31,13 +31,13 @@
     <div class="flex items-center gap-3">
 
         <!-- SEARCH -->
-        <div class="hidden md:flex items-center gap-3 px-5 py-3 rounded-2xl bg-white dark:bg-[#0d0d0d] border border-black/5 dark:border-white/10 shadow-sm">
+        <div class="hidden md:flex items-center gap-3 px-5 py-3 rounded-2xl bg-white border border-black/5 shadow-sm">
 
             <span>🔍</span>
 
             <input type="text"
                    placeholder="{{ $search ?? 'Search...' }}"
-                   class="bg-transparent outline-none text-sm w-56 text-[#111111] dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30">
+                   class="bg-transparent outline-none text-sm w-56 text-[#111111] placeholder:text-black/30">
 
         </div>
 
@@ -46,25 +46,25 @@
 
     <button id="profileButton"
             type="button"
-            class="flex items-center gap-3 px-3 py-2 rounded-2xl bg-white dark:bg-[#0d0d0d] border border-black/5 dark:border-white/10 shadow-sm hover:scale-[1.02] transition-all duration-300">
+            class="flex items-center gap-3 px-3 py-2 rounded-2xl bg-white border border-black/5 shadow-sm hover:scale-[1.02] transition-all duration-300">
 
         <img src="https://i.pravatar.cc/100"
              class="w-11 h-11 rounded-xl object-cover">
 
         <div class="hidden md:block text-left leading-tight">
 
-            <h4 class="font-semibold text-sm text-[#111111] dark:text-white">
+            <h4 class="font-semibold text-sm text-[#111111]">
                 {{ Auth::user()->name ?? 'Admin' }}
             </h4>
 
-            <p class="text-xs text-black/40 dark:text-white/40">
+            <p class="text-xs text-black/40">
                 Administrator
             </p>
 
         </div>
 
         <svg xmlns="http://www.w3.org/2000/svg"
-             class="w-4 h-4 text-black/40 dark:text-white/40"
+             class="w-4 h-4 text-black/40"
              fill="none"
              viewBox="0 0 24 24"
              stroke="currentColor">
@@ -80,16 +80,16 @@
 
     <!-- DROPDOWN -->
     <div id="profileDropdown"
-         class="absolute right-0 top-[72px] w-[240px] p-2 rounded-3xl bg-white dark:bg-[#0d0d0d] border border-black/5 dark:border-white/10 shadow-2xl opacity-0 invisible translate-y-3 transition-all duration-300 z-50">
+         class="absolute right-0 top-[72px] w-[240px] p-2 rounded-3xl bg-white border border-black/5 shadow-2xl opacity-0 invisible translate-y-3 transition-all duration-300 z-50">
 
         <!-- USER -->
-        <div class="px-4 py-3 border-b border-black/5 dark:border-white/10">
+        <div class="px-4 py-3 border-b border-black/5">
 
-            <h4 class="font-semibold text-[#111111] dark:text-white">
+            <h4 class="font-semibold text-[#111111]">
                 {{ Auth::user()->name ?? 'Admin' }}
             </h4>
 
-            <p class="text-sm text-black/40 dark:text-white/40">
+            <p class="text-sm text-black/40">
                 {{ Auth::user()->email ?? 'admin@email.com' }}
             </p>
 
@@ -99,7 +99,7 @@
         <div class="py-2">
 
             <a href="{{ route('settings') }}"
-               class="flex items-center gap-3 px-4 py-3 rounded-2xl text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-300">
+               class="flex items-center gap-3 px-4 py-3 rounded-2xl text-black/60 hover:bg-black/5 transition-all duration-300">
 
                 ⚙️ Settings
 
@@ -127,7 +127,7 @@
         <!-- THEME BUTTON -->
         <button id="themeToggle"
                 type="button"
-                class="group relative w-14 h-14 rounded-2xl bg-white dark:bg-[#101010] border border-black/5 dark:border-white/10 shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 overflow-hidden transition-all duration-300">
+                class="group relative w-14 h-14 rounded-2xl bg-white border border-black/5 shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 overflow-hidden transition-all duration-300">
 
             <!-- SUN -->
             <svg id="sunIcon"
@@ -147,7 +147,7 @@
             <!-- MOON -->
             <svg id="moonIcon"
                  xmlns="http://www.w3.org/2000/svg"
-                 class="absolute w-6 h-6 text-[#111111] dark:text-white scale-100 rotate-0 opacity-100 transition-all duration-500"
+                 class="absolute w-6 h-6 text-[#111111] scale-100 rotate-0 opacity-100 transition-all duration-500"
                  fill="none"
                  viewBox="0 0 24 24"
                  stroke="currentColor">
@@ -166,8 +166,8 @@
             <!-- ACTION BUTTON -->
             <button
                 class="px-5 py-3 rounded-2xl
-                       bg-[#111111] dark:bg-white
-                       text-white dark:text-black
+                       bg-[#111111]
+                       text-white
                        font-medium
                        hover:scale-105
                        active:scale-95

@@ -1,0 +1,47 @@
+Ringkasan Lengkap Semua Perubahan
+1. Migration — Membersihkan & Memperbaiki
+Hapus ~20 file migration duplikat (berakhiran _2.php, _3.php)
+Hapus 3 migration tabel customer, order, order_item (tidak ada di ERD baru)
+Ubah id_pesanan di pesanan, detail_pesanan, pembayaran, pengiriman_produk → varchar(50)
+Ubah id_pemasukan di pemasukan_barang, detail_pemasukan_barang → varchar(50)
+composer dump-autoload
+
+2. Seeder — Semua Cocok ✅
+UserSeeder, RoleSeeder, PermissionSeeder, RolePermissionSeeder, KategoriSeeder, BrandSeeder, ProdukSeeder
+
+3. Models — Tambah Relasi
+Produk — tambah method fotoProduk() (hasMany ke FotoProduk)
+FotoProduk — tambah method produk() (belongsTo ke Produk)
+
+4. Controllers — Semua Diperbaiki
+KategoriController	backend.* → admin.* (route & view), id → id_kategori (PK)
+LoginController	status == 0 → status == 'nonaktif', route backend.beranda → admin.dashboard, backend.login → login
+BerandaController	where('status', 1) → where('status_produk', 'aktif')
+ProdukController	foto → foto_produk, detail → deskripsi_produk, status → status_produk (enum), hapus user_id, produk_id → id_produk, backend.* → admin.*, tambah validasi id_brand & size_produk
+UserController	foto → avatar, hp → no_telp, role → id_role (FK), unique:user → unique:users, status enum 'nonaktif'/'aktif', backend.* → admin.*, id → id_user (PK)
+CustomerController	Ditulis ulang — hapus Customer model, Google login langsung ke User + lookup role 'Customer', akun via User langsung
+OrderController	Ditulis ulang total — Order/OrderItem/Customer → Pesanan/DetailPesanan/Keranjang/DetailKeranjang/Pembayaran/PengirimanProduk, generate id_pesanan varchar, status enum sesuai migration
+ProfileUpdateRequest	name → nama, id → id_user
+
+5. Routes (web.php)
+Group /keranjang : tambah middleware('auth') + sambung ke OrderController::viewCart() / updateCart() / removeFromCart()
+Import OrderController
+
+6. View Keranjang Baru (blum bisa di pake)
+resources/views/customer/keranjang/index.blade.php — dibuat baru:
+Extends v_layouts.app (glass-morphism, Inter, monochrome)
+Grid noise background
+Cart items sebagai glass cards horizontal (foto + nama + size/berat + harga)
+Quantity controls (− / +) dengan auto-submit
+Sticky summary sidebar (subtotal, ongkir, total)
+Empty state dengan ilustrasi + CTA "Mulai Belanja"
+Dark mode, responsive mobile
+Form action pakai route keranjang.update & keranjang.remove
+
+7. Logo — Teks "RC" → Gambar
+Navbar (app.blade.php:287) — div hitam "RC" → <img src="image/icon_rc.png">
+Footer (app.blade.php:444) — div hitam "RC" → <img src="image/icon_rc.png">
+Chat widget (chat-widget.blade.php:17) — div hitam "RC" → <img src="image/icon_rc.png" class="rounded-full">
+
+8. Lainnya
+Link cart di navigasi: /cart → /keranjang
