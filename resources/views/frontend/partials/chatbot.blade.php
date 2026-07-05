@@ -127,21 +127,23 @@
     }
 
     .btn-quick-reply {
-    background-color: #1e1e1e;
-    color: #ffffff;
-    border: 1px solid #333333;
-    padding: 6px 12px;
+    background-color: rgba(255, 255, 255, 0.04);
+    color: #cccccc;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
     border-radius: 20px;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
+    letter-spacing: 0.3px;
+    font-weight: 500;
+    font-family: inherit;
 }
 
 .btn-quick-reply:hover {
-    background-color: #34d399; /* Berubah warna hijau khas online saat di-hover */
-    border-color: #34d399;
+    background-color: #EAE6DF;
+    border-color: #EAE6DF;
     color: #000000;
-    font-weight: bold;
 }
 </style>
 
@@ -166,11 +168,11 @@
             Welcome to Republik Casual. Saya asisten virtual Anda. Ada yang bisa saya bantu mengenai katalog produk atau pesanan Anda hari ini?
         </div>
 
-        <div class="rc-quick-replies d-flex flex-wrap gap-2 mt-3 px-2">
-            <button type="button" class="btn-quick-reply" data-msg="Apakah ada promo minggu ini?">🎁 Cek Promo</button>
-            <button type="button" class="btn-quick-reply" data-msg="Bagaimana cara order produk?">🛒 Cara Order</button>
-            <button type="button" class="btn-quick-reply" data-msg="Apakah produk celana cargo ready stok?">📦 Cek Stok Cargo</button>
-            <button type="button" class="btn-quick-reply" data-msg="Bisa minta kontak WhatsApp admin fisik?">📱 Hubungi Admin WA</button>
+        <div class="rc-quick-replies d-flex flex-wrap gap-2 mt-3 px-2" id="quickReplies">
+            <button type="button" class="btn-quick-reply" data-msg="Apakah ada promo minggu ini?">Cek Promo</button>
+            <button type="button" class="btn-quick-reply" data-msg="Bagaimana cara order produk?">Cara Order</button>
+            <button type="button" class="btn-quick-reply" data-msg="Apakah produk celana cargo ready stok?">Cek Stok Cargo</button>
+            <button type="button" class="btn-quick-reply" data-msg="Bisa minta kontak WhatsApp admin fisik?">Hubungi Admin</button>
         </div>
     </div>
     
@@ -192,10 +194,16 @@
         const chatInput = document.getElementById('chatInput');
         const btnSendChat = document.getElementById('btnSendChat');
         const chatBody = document.getElementById('chatBody');
+        let quickReplies = document.getElementById('quickReplies');
+        const initialChatHTML = chatBody.innerHTML;
 
         if(chatTrigger) {
             chatTrigger.addEventListener('click', () => chatWindow.classList.toggle('active'));
-            closeChat.addEventListener('click', () => chatWindow.remove('active'));
+            closeChat.addEventListener('click', () => {
+                chatWindow.classList.remove('active');
+                chatBody.innerHTML = initialChatHTML;
+                quickReplies = document.getElementById('quickReplies');
+            });
 
             function sendMessage() {
                 const messageText = chatInput.value.trim();
@@ -223,10 +231,18 @@
                 .then(data => {
                     typingIndicator.remove();
                     appendMessage(data.reply, 'bot');
+                    if (quickReplies) {
+                        quickReplies.style.display = '';
+                        chatBody.appendChild(quickReplies);
+                    }
                 })
                 .catch(error => {
                     typingIndicator.remove();
                     appendMessage('Maaf, asisten kami sedang beristirahat. Silakan hubungi kami beberapa saat lagi.', 'bot');
+                    if (quickReplies) {
+                        quickReplies.style.display = '';
+                        chatBody.appendChild(quickReplies);
+                    }
                 });
             }
 
@@ -242,29 +258,15 @@
             chatInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') sendMessage();
             });
+
+            const quickReplyButtons = document.querySelectorAll('.btn-quick-reply');
+            quickReplyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    chatInput.value = this.getAttribute('data-msg');
+                    if (quickReplies) quickReplies.style.display = 'none';
+                    btnSendChat.click();
+                });
+            });
         }
     });
-
-    document.addEventListener('DOMContentLoaded', function() {
-    // Cari semua tombol yang memiliki class btn-quick-reply
-    const quickReplyButtons = document.querySelectorAll('.btn-quick-reply');
-    const chatInput = document.getElementById('chatInput');
-    const btnSendChat = document.getElementById('btnSendChat');
-
-    quickReplyButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // 1. Ambil teks pesan dari atribut data-msg tombol yang diklik
-            const messageText = this.getAttribute('data-msg');
-            
-            // 2. Isi kotak input dengan teks tersebut
-            chatInput.value = messageText;
-            
-            // 3. Picu otomatis tombol kirim bawaan sistem kamu
-            btnSendChat.click();
-            
-            // 4. (Opsional) Sembunyikan atau hapus container tombol setelah diklik agar tidak menumpuk
-            this.parentElement.style.display = 'none';
-        });
-    });
-});
 </script>

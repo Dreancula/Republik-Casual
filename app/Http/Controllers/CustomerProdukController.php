@@ -59,4 +59,33 @@ class CustomerProdukController extends Controller
             compact('produk')
         );
     }
+
+    public function searchApi()
+    {
+        $q = request('q');
+        if (!$q || strlen(trim($q)) < 1) {
+            return response()->json([]);
+        }
+
+        $produk = Produk::with('kategori')
+            ->where('status_produk', 'aktif')
+            ->where(function ($query) use ($q) {
+                $query->where('nama_produk', 'like', "%{$q}%")
+                      ->orWhere('deskripsi_produk', 'like', "%{$q}%");
+            })
+            ->limit(8)
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'id' => $p->id_produk,
+                    'nama' => $p->nama_produk,
+                    'harga' => 'Rp ' . number_format($p->harga, 0, ',', '.'),
+                    'stok' => $p->stok,
+                    'kategori' => $p->kategori?->nama_kategori,
+                    'url' => route('produk.show', $p->id_produk),
+                ];
+            });
+
+        return response()->json($produk);
+    }
 }

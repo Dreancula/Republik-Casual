@@ -25,6 +25,8 @@ use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\PesananSayaController;
 use App\Http\Controllers\CustomerChatBotController;
 use App\Http\Controllers\KomplainController;
+use App\Http\Controllers\AboutController;
+use App\Http\Controllers\ChatController;
 
 
 
@@ -104,6 +106,12 @@ Route::get('/produk', [CustomerProdukController::class, 'index'])
 Route::get('/produk/{id}', [CustomerProdukController::class, 'show'])
     ->name('produk.show');
 
+Route::get('/search', [CustomerProdukController::class, 'searchApi'])
+    ->name('search.api');
+
+Route::get('/about', [AboutController::class, 'index'])
+    ->name('about');
+
 /*
 |--------------------------------------------------------------------------
 | LOGOUT CUSTOMER
@@ -144,6 +152,13 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/remove/{id}', [OrderController::class, 'removeFromCart'])
             ->name('keranjang.remove');
+    });
+
+    Route::prefix('api')->group(function () {
+        Route::get('/chats', [ChatController::class, 'index'])
+            ->name('api.chats.index');
+        Route::post('/chats', [ChatController::class, 'store'])
+            ->name('api.chats.store');
     });
 
     Route::get(
@@ -236,6 +251,17 @@ Route::middleware('guest')->group(function () {
 
         if (Auth::attempt($credentials)) {
 
+            $user = Auth::user();
+
+            if (!in_array($user->id_role, [1, 2])) {
+                Auth::logout();
+                request()->session()->invalidate();
+                request()->session()->regenerateToken();
+                return back()->withErrors([
+                    'email' => 'Anda tidak memiliki akses ke halaman admin.',
+                ]);
+            }
+
             request()->session()->regenerate();
 
             return redirect()->route('admin.dashboard');
@@ -272,7 +298,7 @@ Route::post('/admin/logout', function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')
+Route::middleware(['auth', 'can:access-admin-or-manajer'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -304,31 +330,28 @@ Route::middleware('auth')
         Route::post('/pesanan/{id}/quick', [PesananController::class, 'quickUpdate'])
             ->name('pesanan.quick');
 
+        Route::resource('produk', ProdukController::class);
+
+        Route::get('/kategori', [KategoriController::class, 'index'])
+            ->name('kategori.index');
+
+        Route::post('/kategori/store', [KategoriController::class, 'store'])
+            ->name('kategori.store');
+
+        Route::delete('/kategori/{id}', [KategoriController::class, 'destroy'])
+            ->name('kategori.destroy');
+
+        Route::get('/brand', [BrandController::class, 'index'])
+            ->name('brand.index');
+
+        Route::post('/brand/store', [BrandController::class, 'store'])
+            ->name('brand.store');
+
+        Route::delete('/brand/{id}', [BrandController::class, 'destroy'])
+            ->name('brand.destroy');
+
         Route::get('/laporan', [LaporanController::class, 'index'])
             ->name('laporan.index');
-
-        Route::middleware(['can:access-admin-or-manajer'])->group(function () {
-
-            Route::resource('produk', ProdukController::class);
-
-            Route::get('/kategori', [KategoriController::class, 'index'])
-                ->name('kategori.index');
-
-            Route::post('/kategori/store', [KategoriController::class, 'store'])
-                ->name('kategori.store');
-
-            Route::delete('/kategori/{id}', [KategoriController::class, 'destroy'])
-                ->name('kategori.destroy');
-
-            Route::get('/brand', [BrandController::class, 'index'])
-                ->name('brand.index');
-
-            Route::post('/brand/store', [BrandController::class, 'store'])
-                ->name('brand.store');
-
-            Route::delete('/brand/{id}', [BrandController::class, 'destroy'])
-                ->name('brand.destroy');
-        });
 
         Route::middleware(['can:access-manajer'])->group(function () {
 
@@ -345,17 +368,9 @@ Route::middleware('auth')
                 ->name('pemasukan-barang.show');
         });
 
-        // ... (route user & pesanan bawaan lu) ...
-    
-        Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
-
-        // 🔥 TARUH ROUTE ADMIN KOMPLAIN DI SINI
-        // Di dalam Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () { ...
-    
         Route::get('/komplain', [KomplainController::class, 'indexAdmin'])->name('komplain.index');
         Route::get('/komplain/{id_komplain}', [KomplainController::class, 'showAdmin'])->name('komplain.show');
 
-        // 🔥 Ubah baris approve ini (buang teks 'admin.' pada bagian ->name() nya):
         Route::put('/komplain/{id_komplain}/approve', [KomplainController::class, 'approve'])->name('komplain.approve');
 
         Route::put('/komplain/{id_komplain}/reject', [KomplainController::class, 'reject'])->name('komplain.reject');

@@ -327,6 +327,11 @@
     .status-DIPROSES { color: #8b5cf6; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2); }
     .status-DIKIRIM { color: #3b82f6; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); }
 
+    .status-komplain-pending { color: #fb7185; background: rgba(251, 113, 133, 0.1); border: 1px solid rgba(251, 113, 133, 0.25); }
+    .status-komplain-approved { color: #10b981; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); }
+    .status-komplain-rejected { color: #ef4444; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); }
+    .status-komplain-selesai { color: #8b5cf6; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.25); }
+
     /* RESPONSIVE */
     @media(max-width: 992px) {
         .detail-grid {
@@ -396,65 +401,153 @@
                     $komplainAktif = $pesanan->komplain->first();
                     $waktuSelesai = $pesanan->updated_at;
                     $batasMenit = 30;
-                    $masihBisaKomplain = now()->diffInMinutes($waktuSelesai) < $batasMenit;
+                    $masihBisaKomplain = $pesanan->status_pesanan == 'selesai' && now()->diffInMinutes($waktuSelesai) < $batasMenit;
                 @endphp
 
-                @if($pesanan->status_pesanan == 'selesai' && $masihBisaKomplain)
+                @if($komplainAktif)
     <div class="complaint-container">
-
-        @if($komplainAktif)
-            <div class="alert alert-info py-2 px-3 d-inline-block text-sm">
-                <i class="fa-solid fa-circle-info"></i> Status Komplain: 
-                <strong>{{ strtoupper($komplainAktif->status_komplain) }}</strong>
-                @if($komplainAktif->status_komplain == 'approved')
-                    — Produk: {{ $komplainAktif->produk->nama_produk ?? 'Produk' }} ({{ $komplainAktif->qty }} pcs)
-                @endif
+        <div style="padding:16px;background:rgba(251,113,133,0.06);border:1px solid rgba(251,113,133,0.15);border-radius:16px;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <i class="fa-solid fa-circle-exclamation" style="color:#fb7185;"></i>
+                <span style="font-weight:700;font-size:14px;color:#fb7185;">Komplain Diajukan</span>
+                @php
+                    $statusLabel = [
+                        'pending' => 'Menunggu Verifikasi',
+                        'approved' => 'Disetujui',
+                        'rejected' => 'Ditolak',
+                        'selesai' => 'Selesai',
+                    ];
+                    $statusClass = [
+                        'pending' => 'status-komplain-pending',
+                        'approved' => 'status-komplain-approved',
+                        'rejected' => 'status-komplain-rejected',
+                        'selesai' => 'status-komplain-selesai',
+                    ];
+                @endphp
+                <span class="status-badge {{ $statusClass[$komplainAktif->status_komplain] ?? '' }}">
+                    {{ $statusLabel[$komplainAktif->status_komplain] ?? strtoupper($komplainAktif->status_komplain) }}
+                </span>
             </div>
+            @if($komplainAktif->deskripsi)
+                <p style="font-size:13px;color:var(--rc-text-secondary);margin:8px 0 0 0;line-height:1.5;">
+                    "{{ $komplainAktif->deskripsi }}"
+                </p>
+            @endif
+        </div>
 
-            @if($komplainAktif->status_komplain == 'approved' && !$komplainAktif->no_resi_return)
-                <form action="{{ route('komplain.konfirmasi-retur', $komplainAktif->id_komplain) }}" method="POST" enctype="multipart/form-data" class="mt-2">
-                    @csrf
-                    @method('PUT')
-                    <div class="mb-2">
-                        <label class="text-muted small d-block mb-1">Upload Bukti Barang Sudah Diserahkan ke Kurir</label>
-                        <input type="file" name="foto_return" class="form-control form-control-sm" accept="image/*" required style="max-width: 300px; background: rgba(0,0,0,0.4); color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+        {{-- KOMPLAIN PRODUCTS --}}
+        @if($komplainAktif->detailKomplain->isNotEmpty())
+            <div style="margin-bottom:16px;">
+                <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--rc-text-secondary);margin-bottom:12px;">
+                    <i class="fa-solid fa-box"></i> Produk Komplain
+                </div>
+                @foreach($komplainAktif->detailKomplain as $dk)
+                    <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <div style="width:64px;height:64px;border-radius:12px;overflow:hidden;flex-shrink:0;border:1px solid var(--rc-card-border);background:rgba(0,0,0,0.3);">
+                            @if($dk->produk && $dk->produk->foto_produk)
+                                <img src="{{ asset('storage/'.$dk->produk->foto_produk) }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+                            @else
+                                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--rc-text-secondary);font-size:18px;"><i class="fa-solid fa-box"></i></div>
+                            @endif
+                        </div>
+                        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+                            <div style="font-weight:700;font-size:14px;color:var(--rc-text-primary);">{{ $dk->produk->nama_produk ?? 'Produk' }}</div>
+                            <div style="font-size:12px;color:var(--rc-text-secondary);">Kuantitas: {{ $dk->qty ?? 1 }}</div>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-sm" style="background: #EAE6DF; color: #000; font-weight: 700; border-radius: 30px; border: none;">
-                        <i class="fa-solid fa-truck-ramp-box"></i> Konfirmasi Kirim Retur
-                    </button>
-                    <small class="text-muted d-block mt-1">No. Resi retur akan di-generate otomatis</small>
-                </form>
-            @elseif($komplainAktif->status_komplain == 'approved' && $komplainAktif->no_resi_return)
-                <div class="mt-2">
-                    <small class="text-success d-block">
-                        <i class="fa-solid fa-check-circle"></i> Retur terkonfirmasi — No. Resi: <strong>{{ $komplainAktif->no_resi_return }}</strong>
-                    </small>
-                    @if($komplainAktif->foto_return)
-                        <small class="text-muted d-block mt-1">
-                            <i class="fa-solid fa-image"></i> 
-                            <a href="{{ asset('storage/' . $komplainAktif->foto_return) }}" target="_blank" class="text-decoration-underline text-muted">Lihat bukti serah terima</a>
-                        </small>
+
+                    {{-- FOTO PER DETAIL KOMPLAIN --}}
+                    @php $fotoList = $dk->foto_array; @endphp
+                    @if(!empty($fotoList))
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;padding:8px 0 12px 76px;">
+                            @foreach($fotoList as $f)
+                                <a href="{{ asset('storage/'.$f) }}" target="_blank" style="display:block;width:72px;height:72px;border-radius:10px;overflow:hidden;border:1px solid var(--rc-card-border);">
+                                    <img src="{{ asset('storage/'.$f) }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
+                @endforeach
+            </div>
+        @elseif($komplainAktif->produk)
+            {{-- FALLBACK: old komplain with single produk --}}
+            <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);margin-bottom:12px;">
+                <div style="width:64px;height:64px;border-radius:12px;overflow:hidden;flex-shrink:0;border:1px solid var(--rc-card-border);">
+                    @if($komplainAktif->produk->foto_produk)
+                        <img src="{{ asset('storage/'.$komplainAktif->produk->foto_produk) }}" alt="" style="width:100%;height:100%;object-fit:cover;">
                     @endif
                 </div>
-            @elseif($komplainAktif->status_komplain == 'selesai')
-                <div class="mt-2">
-                    <small class="text-success d-block">
-                        <i class="fa-solid fa-circle-check"></i> Komplain selesai — Barang pengganti sedang diproses
-                    </small>
+                <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+                    <div style="font-weight:700;font-size:14px;color:var(--rc-text-primary);">{{ $komplainAktif->produk->nama_produk ?? 'Produk' }}</div>
+                    <div style="font-size:12px;color:var(--rc-text-secondary);">Kuantitas: {{ $komplainAktif->qty ?? 1 }}</div>
                 </div>
-            @elseif($komplainAktif->status_komplain == 'rejected')
-                <div class="mt-2">
-                    <small class="text-danger d-block">
-                        <i class="fa-solid fa-circle-xmark"></i> Komplain ditolak oleh admin
-                    </small>
+            </div>
+            @php $fotoList = $komplainAktif->foto_array; @endphp
+            @if(!empty($fotoList))
+                <div style="display:flex;gap:8px;flex-wrap:wrap;padding:8px 0 12px 0;">
+                    @foreach($fotoList as $f)
+                        <a href="{{ asset('storage/'.$f) }}" target="_blank" style="display:block;width:72px;height:72px;border-radius:10px;overflow:hidden;border:1px solid var(--rc-card-border);">
+                            <img src="{{ asset('storage/'.$f) }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+                        </a>
+                    @endforeach
                 </div>
             @endif
-        @else
-            <a href="{{ route('komplain.create', $pesanan->id_pesanan) }}" class="btn-complaint">
-                <i class="fa-solid fa-circle-exclamation"></i> Ajukan Komplain
-            </a>
         @endif
 
+        @if($komplainAktif->status_komplain == 'approved' && !$komplainAktif->no_resi_return)
+            <form action="{{ route('komplain.konfirmasi-retur', $komplainAktif->id_komplain) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+                <div style="margin-bottom:10px;">
+                    <label style="font-size:12px;color:var(--rc-text-secondary);display:block;margin-bottom:6px;">
+                        <i class="fa-solid fa-camera"></i> Upload Bukti Barang Sudah Diserahkan ke Kurir
+                    </label>
+                    <input type="file" name="foto_return" class="form-control form-control-sm" accept="image/*" required style="max-width:300px;background:rgba(0,0,0,0.4);color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:8px 12px;font-size:13px;">
+                </div>
+                <button type="submit" style="padding:10px 20px;background:var(--rc-accent);color:#000;font-weight:700;font-size:13px;border:none;border-radius:30px;cursor:pointer;">
+                    <i class="fa-solid fa-truck-ramp-box"></i> Konfirmasi Kirim Retur
+                </button>
+                <div style="font-size:11px;color:var(--rc-text-secondary);margin-top:6px;">No. Resi retur akan di-generate otomatis</div>
+            </form>
+        @elseif($komplainAktif->status_komplain == 'approved' && $komplainAktif->no_resi_return)
+            <div style="padding:12px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:12px;">
+                <div style="font-size:13px;color:#10b981;">
+                    <i class="fa-solid fa-check-circle"></i> Retur terkonfirmasi
+                </div>
+                <div style="font-size:13px;color:var(--rc-text-primary);margin-top:4px;">
+                    No. Resi: <strong style="color:var(--rc-accent);font-family:monospace;">{{ $komplainAktif->no_resi_return }}</strong>
+                </div>
+                @if($komplainAktif->foto_return)
+                    <a href="{{ asset('storage/'.$komplainAktif->foto_return) }}" target="_blank" style="font-size:12px;color:var(--rc-text-secondary);margin-top:6px;display:inline-block;text-decoration:underline;">
+                        <i class="fa-solid fa-image"></i> Lihat bukti serah terima
+                    </a>
+                @endif
+            </div>
+        @elseif($komplainAktif->status_komplain == 'selesai' && $komplainAktif->id_pesanan_retur)
+            <div style="padding:12px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:12px;">
+                <div style="font-size:13px;color:#10b981;">
+                    <i class="fa-solid fa-circle-check"></i> Komplain selesai — Pesanan pengganti: <strong style="color:var(--rc-accent);">RC-{{ $komplainAktif->id_pesanan_retur }}</strong>
+                </div>
+                @php $returPesanan = $komplainAktif->returPesanan; @endphp
+                @if($returPesanan && $returPesanan->pengirimanUtama && $returPesanan->pengirimanUtama->no_resi)
+                    <div style="font-size:13px;color:var(--rc-text-primary);margin-top:4px;">
+                        Resi Pengganti: <strong style="color:var(--rc-accent);font-family:monospace;">{{ $returPesanan->pengirimanUtama->no_resi }}</strong>
+                    </div>
+                @endif
+            </div>
+        @elseif($komplainAktif->status_komplain == 'rejected')
+            <div style="padding:12px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:12px;">
+                <div style="font-size:13px;color:#ef4444;">
+                    <i class="fa-solid fa-circle-xmark"></i> Komplain ditolak oleh admin
+                </div>
+            </div>
+        @endif
+    </div>
+@elseif($masihBisaKomplain)
+    <div class="complaint-container">
+        <a href="{{ route('komplain.create', $pesanan->id_pesanan) }}" class="btn-complaint">
+            <i class="fa-solid fa-circle-exclamation"></i> Ajukan Komplain
+        </a>
     </div>
 @endif
             </div>

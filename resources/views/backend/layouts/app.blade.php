@@ -6,6 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Republik Casual — Core Backend</title>
 
+    <link rel="icon" type="image/png" href="{{ asset('image/favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('image/icon_rc.png') }}">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32:wght@400;500;600;700&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
@@ -727,7 +730,7 @@
         <div style="display: flex; flex-direction: column; height: 100%;">
             <div class="rc-brand-wrapper">
                 <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none">
-                    <img src="{{ asset('image/icon_rc.png') }}" alt="Republik Casual">
+                    <img src="{{ asset('image/logo.png') }}" alt="Republik Casual">
                     <div style="line-height: 1.2;">
                         <div class="brand-name">Republik Casual</div>
                         <div class="brand-sub">Premium Fashion</div>

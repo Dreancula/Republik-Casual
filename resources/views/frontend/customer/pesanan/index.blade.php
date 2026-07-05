@@ -85,6 +85,56 @@
     }
 
     /* ========================
+        FILTER TABS
+    ======================== */
+    .filter-tabs {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 36px;
+    }
+
+    .filter-tab {
+        padding: 10px 20px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-decoration: none;
+        color: var(--rc-text-secondary);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--rc-card-border);
+        transition: all 0.3s var(--transition-smooth);
+    }
+
+    .filter-tab:hover {
+        color: var(--rc-text-primary);
+        border-color: rgba(var(--rc-accent-rgb), 0.3);
+    }
+
+    .filter-tab.active {
+        color: #000;
+        background: var(--rc-accent);
+        border-color: var(--rc-accent);
+    }
+
+    .filter-tab.komplain-tab {
+        color: #fb7185;
+        border-color: rgba(251, 113, 133, 0.3);
+    }
+
+    .filter-tab.komplain-tab:hover {
+        border-color: rgba(251, 113, 133, 0.6);
+    }
+
+    .filter-tab.komplain-tab.active {
+        color: #fff;
+        background: #fb7185;
+        border-color: #fb7185;
+    }
+
+    /* ========================
         ORDER CARD (GLASSMORPHISM)
     ======================== */
     .order-card {
@@ -191,6 +241,56 @@
     }
 
     /* ========================
+        KOMPLAIN STATUS BADGES
+    ======================== */
+    .status-komplain-pending {
+        background: rgba(251, 113, 133, 0.1);
+        border: 1px solid rgba(251, 113, 133, 0.25);
+        color: #fb7185;
+    }
+
+    .status-komplain-approved {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.25);
+        color: #10b981;
+    }
+
+    .status-komplain-selesai {
+        background: rgba(139, 92, 246, 0.1);
+        border: 1px solid rgba(139, 92, 246, 0.25);
+        color: #8b5cf6;
+    }
+
+    .status-komplain-rejected {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        color: #ef4444;
+    }
+
+    /* ========================
+        KOMPLAIN CARD EXTRAS
+    ======================== */
+    .komplain-products {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin: 16px 0;
+    }
+
+    .komplain-product-chip {
+        padding: 6px 14px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--rc-card-border);
+        font-size: 12px;
+        color: var(--rc-text-secondary);
+    }
+
+    .komplain-product-chip strong {
+        color: var(--rc-text-primary);
+    }
+
+    /* ========================
         BUTTONS & EMPTY STATE
     ======================== */
     .btn-detail {
@@ -209,6 +309,22 @@
         transform: translateY(-2px);
         background: var(--rc-text-primary);
         box-shadow: 0 8px 20px rgba(var(--rc-accent-rgb), 0.25);
+    }
+
+    .btn-outline {
+        padding: 14px 24px;
+        border: 1px solid var(--rc-card-border);
+        color: var(--rc-text-primary);
+        text-decoration: none;
+        border-radius: 16px;
+        font-weight: 700;
+        font-size: 14px;
+        transition: all 0.3s var(--transition-smooth);
+    }
+
+    .btn-outline:hover {
+        border-color: rgba(var(--rc-accent-rgb), 0.3);
+        background: rgba(255, 255, 255, 0.04);
     }
 
     .empty-state {
@@ -250,82 +366,194 @@
         <p>Riwayat seluruh transaksi Anda di Republik Casual</p>
     </div>
 
-    @forelse($pesanans as $pesanan)
-        <div class="order-card">
-            
-            <!-- TOP CARD ROW: ID & STATUS -->
-            <div class="card-row">
-                <div>
-                    <div class="order-id">
-                        RC-{{ $pesanan->id_pesanan }}
+    @php
+        $currentStatus = request('status');
+        $currentFilter = request('filter');
+    @endphp
+
+    {{-- FILTER TABS --}}
+    <div class="filter-tabs">
+        <a href="{{ route('pesanan.saya') }}"
+           class="filter-tab {{ !$currentStatus && $currentFilter !== 'komplain' ? 'active' : '' }}">
+            Semua
+        </a>
+        <a href="{{ route('pesanan.saya', ['status' => 'pending']) }}"
+           class="filter-tab {{ $currentStatus === 'pending' ? 'active' : '' }}">
+            Menunggu Bayar
+        </a>
+        <a href="{{ route('pesanan.saya', ['status' => 'dibayar']) }}"
+           class="filter-tab {{ $currentStatus === 'dibayar' ? 'active' : '' }}">
+            Dibayar
+        </a>
+        <a href="{{ route('pesanan.saya', ['status' => 'diproses']) }}"
+           class="filter-tab {{ $currentStatus === 'diproses' ? 'active' : '' }}">
+            Diproses
+        </a>
+        <a href="{{ route('pesanan.saya', ['status' => 'dikirim']) }}"
+           class="filter-tab {{ $currentStatus === 'dikirim' ? 'active' : '' }}">
+            Dikirim
+        </a>
+        <a href="{{ route('pesanan.saya', ['status' => 'selesai']) }}"
+           class="filter-tab {{ $currentStatus === 'selesai' ? 'active' : '' }}">
+            Selesai
+        </a>
+        @if($komplainCount > 0)
+            <a href="{{ route('pesanan.saya', ['filter' => 'komplain']) }}"
+               class="filter-tab komplain-tab {{ $currentFilter === 'komplain' ? 'active' : '' }}">
+                Komplain ({{ $komplainCount }})
+            </a>
+        @endif
+    </div>
+
+    {{-- KOMPLAIN VIEW --}}
+    @if($currentFilter === 'komplain')
+        @forelse($komplainList as $komplain)
+            <div class="order-card">
+                <div class="card-row">
+                    <div>
+                        <div class="order-id" style="font-size:16px;">
+                            Komplain — RC-{{ $komplain->id_pesanan }}
+                        </div>
+                        <div class="order-date">
+                            <i class="fa-regular fa-calendar-days"></i> &nbsp;
+                            {{ \Carbon\Carbon::parse($komplain->created_at)->translatedFormat('d F Y H:i') }}
+                        </div>
                     </div>
+                    <div>
+                        @if($komplain->status_komplain == 'pending')
+                            <span class="status-badge status-komplain-pending">
+                                <i class="fa-solid fa-clock"></i> Menunggu Verifikasi
+                            </span>
+                        @elseif($komplain->status_komplain == 'approved' && !$komplain->no_resi_return)
+                            <span class="status-badge status-komplain-approved">
+                                <i class="fa-solid fa-circle-check"></i> Disetujui
+                            </span>
+                        @elseif($komplain->status_komplain == 'approved' && $komplain->no_resi_return)
+                            <span class="status-badge status-komplain-approved">
+                                <i class="fa-solid fa-truck-fast"></i> Dalam Pengiriman
+                            </span>
+                        @elseif($komplain->status_komplain == 'selesai')
+                            <span class="status-badge status-komplain-selesai">
+                                <i class="fa-solid fa-circle-check"></i> Selesai
+                            </span>
+                        @else
+                            <span class="status-badge status-komplain-rejected">
+                                <i class="fa-solid fa-circle-xmark"></i> Ditolak
+                            </span>
+                        @endif
+                    </div>
+                </div>
+
+                @if($komplain->detailKomplain->isNotEmpty())
+                    <div class="komplain-products">
+                        @foreach($komplain->detailKomplain as $dk)
+                            <span class="komplain-product-chip">
+                                <strong>{{ $dk->produk?->nama_produk ?? 'Produk' }}</strong> × {{ $dk->qty ?? 1 }}
+                            </span>
+                        @endforeach
+                    </div>
+                @endif
+
+                <hr class="order-divider">
+
+                <div class="card-row">
                     <div class="order-date">
-                        <i class="fa-regular fa-calendar-days"></i> &nbsp;
-                        {{ \Carbon\Carbon::parse($pesanan->tgl_pesanan)->translatedFormat('d F Y H:i') }}
+                        @if($komplain->deskripsi)
+                            <i class="fa-regular fa-note-sticky"></i>
+                            {{ \Illuminate\Support\Str::limit($komplain->deskripsi, 80) }}
+                        @endif
+                    </div>
+                    <a href="{{ route('pesanan.saya.show', $komplain->id_pesanan) }}" class="btn-outline">
+                        Lihat Detail &nbsp; <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        @empty
+            <div class="empty-state">
+                <i class="fa-solid fa-message"></i>
+                Tidak ada riwayat komplain.
+            </div>
+        @endforelse
+
+    {{-- ORDER VIEW --}}
+    @else
+        @forelse($pesanans as $pesanan)
+            <div class="order-card">
+                
+                <!-- TOP CARD ROW: ID & STATUS -->
+                <div class="card-row">
+                    <div>
+                        <div class="order-id">
+                            RC-{{ $pesanan->id_pesanan }}
+                        </div>
+                        <div class="order-date">
+                            <i class="fa-regular fa-calendar-days"></i> &nbsp;
+                            {{ \Carbon\Carbon::parse($pesanan->tgl_pesanan)->translatedFormat('d F Y H:i') }}
+                        </div>
+                    </div>
+
+                    <div>
+                        @if($pesanan->status_pesanan == 'pending')
+                            <span class="status-badge status-pending">
+                                <i class="fa-solid fa-clock"></i> Menunggu Pembayaran
+                            </span>
+                        @elseif($pesanan->status_pesanan == 'dibayar')
+                            <span class="status-badge status-dibayar">
+                                <i class="fa-solid fa-circle-check"></i> Sudah Dibayar
+                            </span>
+                        @elseif($pesanan->status_pesanan == 'diproses')
+                            <span class="status-badge status-diproses">
+                                <i class="fa-solid fa-arrows-spin fa-spin"></i> Sedang Diproses
+                            </span>
+                        @elseif($pesanan->status_pesanan == 'dikirim')
+                            <span class="status-badge status-dikirim">
+                                <i class="fa-solid fa-truck-fast"></i> Dalam Pengiriman
+                            </span>
+                        @elseif($pesanan->status_pesanan == 'selesai')
+                            <span class="status-badge status-selesai">
+                                <i class="fa-solid fa-circle-check"></i> Selesai
+                            </span>
+                        @else
+                            <span class="status-badge status-dibatalkan">
+                                <i class="fa-solid fa-circle-xmark"></i> Dibatalkan
+                            </span>
+                        @endif
                     </div>
                 </div>
 
-                <div>
-                    @if($pesanan->status_pesanan == 'pending')
-                        <span class="status-badge status-pending">
-                            <i class="fa-solid fa-clock"></i> Menunggu Pembayaran
-                        </span>
-                    @elseif($pesanan->status_pesanan == 'dibayar')
-                        <span class="status-badge status-dibayar">
-                            <i class="fa-solid fa-circle-check"></i> Sudah Dibayar
-                        </span>
-                    @elseif($pesanan->status_pesanan == 'diproses')
-                        <span class="status-badge status-diproses">
-                            <i class="fa-solid fa-arrows-spin fa-spin"></i> Sedang Diproses
-                        </span>
-                    @elseif($pesanan->status_pesanan == 'dikirim')
-                        <span class="status-badge status-dikirim">
-                            <i class="fa-solid fa-truck-fast"></i> Dalam Pengiriman
-                        </span>
-                    @elseif($pesanan->status_pesanan == 'selesai')
-                        <span class="status-badge status-selesai">
-                            <i class="fa-solid fa-circle-check"></i> Selesai
-                        </span>
-                    @else
-                        <span class="status-badge status-dibatalkan">
-                            <i class="fa-solid fa-circle-xmark"></i> Dibatalkan
-                        </span>
-                    @endif
-                </div>
-            </div>
+                <hr class="order-divider">
 
-            <hr class="order-divider">
-
-            @php $adaPengganti = $pesanan->pengiriman->where('jenis_pengiriman', 'pengganti')->isNotEmpty(); @endphp
-            @if($adaPengganti)
-                <div style="margin-bottom:16px;padding:10px 16px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:12px;font-size:13px;color:#10b981;">
-                    <i class="fa-solid fa-rotate"></i> Ada pengiriman pengganti dari komplain —
-                    <a href="{{ route('pesanan.saya.show', $pesanan->id_pesanan) }}" style="color:#10b981;text-decoration:underline;font-weight:600;">cek resi</a>
-                </div>
-            @endif
-
-            <!-- BOTTOM CARD ROW: TOTAL PRICE & BUTTON -->
-            <div class="card-row">
-                <div>
-                    <div class="price-label">Total Belanja</div>
-                    <div class="price-value">
-                        Rp {{ number_format($pesanan->total_bayar, 0, ',', '.') }}
+                @php $adaPengganti = $pesanan->pengiriman->where('jenis_pengiriman', 'pengganti')->isNotEmpty(); @endphp
+                @if($adaPengganti)
+                    <div style="margin-bottom:16px;padding:10px 16px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:12px;font-size:13px;color:#10b981;">
+                        <i class="fa-solid fa-rotate"></i> Ada pengiriman pengganti dari komplain —
+                        <a href="{{ route('pesanan.saya.show', $pesanan->id_pesanan) }}" style="color:#10b981;text-decoration:underline;font-weight:600;">cek resi</a>
                     </div>
+                @endif
+
+                <!-- BOTTOM CARD ROW: TOTAL PRICE & BUTTON -->
+                <div class="card-row">
+                    <div>
+                        <div class="price-label">Total Belanja</div>
+                        <div class="price-value">
+                            Rp {{ number_format($pesanan->total_bayar, 0, ',', '.') }}
+                        </div>
+                    </div>
+
+                    <a href="{{ route('pesanan.saya.show', $pesanan->id_pesanan) }}" class="btn-detail">
+                        Lihat Detail &nbsp; <i class="fa-solid fa-chevron-right"></i>
+                    </a>
                 </div>
 
-                <a href="{{ route('pesanan.saya.show', $pesanan->id_pesanan) }}" class="btn-detail">
-                    Lihat Detail &nbsp; <i class="fa-solid fa-chevron-right"></i>
-                </a>
             </div>
-
-        </div>
-    @empty
-        <!-- EMPTY STATE INTERFACE -->
-        <div class="empty-state">
-            <i class="fa-solid fa-box-open"></i>
-            Belum ada data pesanan atau riwayat transaksi saat ini.
-        </div>
-    @endforelse
+        @empty
+            <!-- EMPTY STATE INTERFACE -->
+            <div class="empty-state">
+                <i class="fa-solid fa-box-open"></i>
+                Belum ada data pesanan atau riwayat transaksi saat ini.
+            </div>
+        @endforelse
+    @endif
 
 </div>
 

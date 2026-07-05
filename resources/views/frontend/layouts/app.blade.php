@@ -9,6 +9,10 @@ use Illuminate\Support\Str;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Republik Casual')</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('favicon.png') }}">
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -135,8 +139,8 @@ use Illuminate\Support\Str;
         }
 
         .brand img {
-            width: 38px;
-            height: 38px;
+            height: 42px;
+            width: auto;
             object-fit: contain;
         }
 
@@ -419,7 +423,7 @@ use Illuminate\Support\Str;
         <nav class="navbar">
             
             <a href="{{ route('beranda') }}" class="brand">
-                <img src="{{ asset('image/icon_rc.png') }}" alt="Republik Casual">
+                <img src="{{ asset('image/logo.png') }}" alt="Republik Casual">
                 <span>REPUBLIK CASUAL</span>
             </a>
 
@@ -430,11 +434,8 @@ use Illuminate\Support\Str;
                 <li class="{{ request()->routeIs('products*') ? 'active' : '' }}">
                     <a href="{{ route('products') }}">Katalog</a>
                 </li>
-                <li class="{{ request()->routeIs('pesanan.saya') ? 'active' : '' }}">
+                <li class="{{ request()->routeIs('pesanan.saya') && request('filter') !== 'komplain' ? 'active' : '' }}">
                     <a href="{{ route('pesanan.saya') }}">Pesanan Saya</a>
-                </li>
-                <li class="{{ request()->routeIs('komplain.saya') ? 'active' : '' }}">
-                    <a href="{{ route('komplain.saya') }}">Komplain Saya</a>
                 </li>
                 <li class="{{ request()->routeIs('ai.index') ? 'active' : '' }}">
                     <a href="{{ route('ai.index') }}">AI Stylist</a>
@@ -514,7 +515,19 @@ use Illuminate\Support\Str;
                     </p>
                 </div>
 
-                <!-- Kolom 2: Lokasi Offline Store -->
+                <!-- Kolom 2: Navigasi -->
+                <div>
+                    <div style="font-size: 13px; font-weight: 700; color: var(--rc-accent); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 16px;">
+                        <i class="fa-solid fa-link" style="margin-right: 8px;"></i> Navigasi
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <a href="{{ route('beranda') }}" style="color: var(--rc-text-secondary); font-size: 13px; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--rc-accent)'" onmouseout="this.style.color=''">Beranda</a>
+                        <a href="{{ route('products') }}" style="color: var(--rc-text-secondary); font-size: 13px; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--rc-accent)'" onmouseout="this.style.color=''">Katalog</a>
+                        <a href="{{ route('about') }}" style="color: var(--rc-text-secondary); font-size: 13px; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--rc-accent)'" onmouseout="this.style.color=''">Tentang Kami</a>
+                    </div>
+                </div>
+
+                <!-- Kolom 3: Lokasi Offline Store -->
                 <div>
                     <div style="font-size: 13px; font-weight: 700; color: var(--rc-accent); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 16px;">
                         <i class="fa-solid fa-location-dot" style="margin-right: 8px;"></i> Lokasi Kami
@@ -524,7 +537,7 @@ use Illuminate\Support\Str;
                     </p>
                 </div>
 
-                <!-- Kolom 3: Social & Hubungi Kami -->
+                <!-- Kolom 4: Social & Hubungi Kami -->
                 <div>
                     <div style="font-size: 13px; font-weight: 700; color: var(--rc-accent); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 16px;">
                         Connect With Us

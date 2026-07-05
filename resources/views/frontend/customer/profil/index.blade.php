@@ -327,7 +327,7 @@
 
     <div class="profile-cover">
         <div class="profile-header">
-            <img src="{{ Auth::user()->avatar ?: 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->nama).'&background=111111&color=ffffff' }}" class="profile-avatar" alt="Avatar">
+            <img src="{{ Auth::user()->avatar ? (str_starts_with(Auth::user()->avatar, 'http') ? Auth::user()->avatar : asset('storage/img-customer/'.Auth::user()->avatar)) : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->nama).'&background=111111&color=ffffff' }}" class="profile-avatar" alt="Avatar">
             <div class="profile-info">
                 <h2>{{ Auth::user()->nama }}</h2>
                 <p>{{ Auth::user()->email }}</p>

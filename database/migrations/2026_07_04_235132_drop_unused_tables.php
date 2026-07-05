@@ -11,18 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('role', function (Blueprint $table) {
-            $table->id('id_role');
-            $table->string('nama_role', 25);
-            $table->timestamps();
-        });
+        Schema::disableForeignKeyConstraints();
+        Schema::dropIfExists('order_item');
+        Schema::dropIfExists('order');
+        Schema::dropIfExists('customer');
+        Schema::enableForeignKeyConstraints();
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('role');
+        //
     }
 };
