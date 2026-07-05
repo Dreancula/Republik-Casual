@@ -27,13 +27,25 @@ class KomplainController extends Controller
 
         $idProduks = $request->id_produk;
 
+        $detailPesanan = DetailPesanan::with('produk')
+            ->where('id_pesanan', $request->id_pesanan)
+            ->whereIn('id_produk', $idProduks)
+            ->get()
+            ->keyBy('id_produk');
+
         $rules = [];
+        $messages = [];
         foreach ($idProduks as $idp) {
-            $rules['qty_' . $idp] = 'required|integer|min:1';
+            $maxQty = $detailPesanan->has($idp) ? $detailPesanan[$idp]->quantity : 1;
+            $productName = $detailPesanan->has($idp) ? $detailPesanan[$idp]->produk->nama_produk ?? 'Produk' : 'Produk';
+            $rules['qty_' . $idp] = 'required|integer|min:1|max:' . $maxQty;
             $rules['fotos_' . $idp] = 'required|array';
             $rules['fotos_' . $idp . '.*'] = 'image|mimes:jpeg,png,jpg|max:2048';
+            $messages['qty_' . $idp . '.max'] = "Jumlah rusak untuk \"{$productName}\" tidak boleh lebih dari {$maxQty}.";
+            $messages['qty_' . $idp . '.min'] = "Jumlah rusak untuk \"{$productName}\" minimal 1.";
+            $messages['fotos_' . $idp . '.required'] = "Foto bukti untuk \"{$productName}\" wajib diupload.";
         }
-        $request->validate($rules);
+        $request->validate($rules, $messages);
 
         $komplain = Komplain::create([
             'id_pesanan' => $request->id_pesanan,

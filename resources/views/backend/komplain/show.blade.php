@@ -45,7 +45,7 @@
                     $steps = [
                         ['label' => 'Diajukan', 'icon' => 'fa-solid fa-file-pen', 'done' => true],
                         ['label' => 'Disetujui', 'icon' => 'fa-solid fa-check', 'done' => in_array($komplain->status_komplain, ['approved', 'selesai'])],
-                        ['label' => 'Barang Diterima', 'icon' => 'fa-solid fa-box', 'done' => $komplain->foto_return && $komplain->status_komplain == 'approved'],
+                        ['label' => 'Barang Diterima', 'icon' => 'fa-solid fa-box', 'done' => $komplain->foto_return && in_array($komplain->status_komplain, ['approved', 'selesai'])],
                         ['label' => 'Selesai', 'icon' => 'fa-solid fa-check-double', 'done' => $komplain->status_komplain == 'selesai'],
                     ];
                     if ($komplain->status_komplain == 'rejected') {

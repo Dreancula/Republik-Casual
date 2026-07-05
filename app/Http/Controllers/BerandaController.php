@@ -14,6 +14,9 @@ class BerandaController extends Controller
     {
         // 1. Ambil data Gross Revenue (Total Pendapatan dari pesanan yang selesai)
         $grossRevenue = Pesanan::where('status_pesanan', 'selesai')->sum('total_bayar');
+        $pendapatanProduk = Pesanan::where('status_pesanan', 'selesai')->sum('total_harga_produk');
+        $pendapatanOngkir = Pesanan::where('status_pesanan', 'selesai')->sum('total_ongkir');
+        $pengeluaranOngkir = $pendapatanOngkir;
 
         // 2. Hitung Total Pengeluaran dari Pemasukan Barang dengan penanganan error aman
         try {
@@ -31,8 +34,9 @@ class BerandaController extends Controller
             $totalPengeluaran = 0;
         }
 
-        // 3. Hitung Untung Bersih (Pendapatan - Pengeluaran)
-        $netProfit = $grossRevenue - $totalPengeluaran;
+        // 3. Hitung Untung Bersih (Pendapatan Produk - Pengeluaran Barang)
+        $netProfit = $pendapatanProduk - $totalPengeluaran;
+        $totalPengeluaranKeseluruhan = $totalPengeluaran + $pendapatanOngkir;
 
         // 4. Metrik pendukung lainnya
         $pesananBaruCount = Pesanan::where('status_pesanan', 'pending')->count();
@@ -51,8 +55,12 @@ class BerandaController extends Controller
             'judul' => 'Beranda',
             'sub' => 'Halaman Beranda',
             'grossRevenue' => $grossRevenue,
-            'totalPengeluaran' => $totalPengeluaran, // Menjamin variabel ini terdefinisi
-            'netProfit' => $netProfit,               // Menjamin variabel ini terdefinisi
+            'pendapatanProduk' => $pendapatanProduk,
+            'pendapatanOngkir' => $pendapatanOngkir,
+            'pengeluaranOngkir' => $pengeluaranOngkir,
+            'totalPengeluaranKeseluruhan' => $totalPengeluaranKeseluruhan,
+            'totalPengeluaran' => $totalPengeluaran,
+            'netProfit' => $netProfit,
             'pesananBaruCount' => $pesananBaruCount,
             'totalProduk' => $totalProduk,
             'totalStaff' => $totalStaff,

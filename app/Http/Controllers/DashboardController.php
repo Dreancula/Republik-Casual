@@ -15,6 +15,9 @@ class DashboardController extends Controller
     {
         // 1. Ambil data Gross Revenue (Hanya pesanan yang selesai)
         $grossRevenue = Pesanan::where('status_pesanan', 'selesai')->sum('total_bayar');
+        $pendapatanProduk = Pesanan::where('status_pesanan', 'selesai')->sum('total_harga_produk');
+        $pendapatanOngkir = Pesanan::where('status_pesanan', 'selesai')->sum('total_ongkir');
+        $pengeluaranOngkir = $pendapatanOngkir;
 
         // 2. Hitung Pesanan Baru (status pending)
         $pesananBaruCount = Pesanan::where('status_pesanan', 'pending')->count();
@@ -56,16 +59,22 @@ class DashboardController extends Controller
         // 9. Hitung total kerugian dari deadstok (stok rusak retur)
         $totalDeadstokLoss = Produk::sum(DB::raw('deadstok * harga'));
 
+        $totalPengeluaranKeseluruhan = $totalPengeluaran + $pendapatanOngkir;
+
         // 10. Kirim semua data ke view backend dashboard
         return view('backend.beranda.index', compact(
             'grossRevenue',
+            'pendapatanProduk',
+            'pendapatanOngkir',
+            'pengeluaranOngkir',
+            'totalPengeluaranKeseluruhan',
             'pesananBaruCount',
             'totalProduk',
             'totalStaff',
             'transaksiTerbaru',
             'pemasukan',
             'totalPengeluaran',
-            'totalTerjual', // <-- Variabel penjinak angka 0 Item siap dikirim!
+            'totalTerjual',
             'totalDeadstokLoss'
         ));
     }

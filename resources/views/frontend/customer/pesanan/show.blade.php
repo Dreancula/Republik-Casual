@@ -553,40 +553,46 @@
             </div>
 
             <!-- SHIPPING CARD -->
+            @php $pengirimanPengganti = $pesanan->pengiriman->where('jenis_pengiriman', 'pengganti')->first(); @endphp
+            @if($pesanan->pengirimanUtama || $pengirimanPengganti)
             <div class="rc-card">
                 <h3><i class="fa-solid fa-truck"></i> Informasi Pengiriman</h3>
                 <div class="info-list">
+                    @if($pesanan->pengirimanUtama)
                     <div class="info-item">
                         <span>Kurir Ekspedisi</span>
-                        <span>{{ $pesanan->pengirimanUtama->nama_kurir ?? '-' }}</span>
+                        <span>{{ $pesanan->pengirimanUtama->nama_kurir }}</span>
                     </div>
                     <div class="info-item">
                         <span>Jenis Layanan</span>
-                        <span>{{ $pesanan->pengirimanUtama->layanan ?? '-' }}</span>
+                        <span>{{ $pesanan->pengirimanUtama->layanan }}</span>
                     </div>
                     <div class="info-item">
                         <span>Nomor Resi</span>
-                        <span class="highlight-resi">{{ $pesanan->pengirimanUtama->no_resi ?? 'Belum tersedia' }}</span>
+                        <span class="highlight-resi">{{ $pesanan->pengirimanUtama->no_resi }}</span>
                     </div>
+                    @endif
 
-                    @php $pengirimanPengganti = $pesanan->pengiriman->where('jenis_pengiriman', 'pengganti')->first(); @endphp
                     @if($pengirimanPengganti)
+                        @if($pesanan->pengirimanUtama)
                         <hr style="border-color: var(--rc-card-border); margin: 12px 0;">
+                        @endif
                         <div class="info-item">
                             <span class="text-success"><i class="fa-solid fa-rotate"></i> Pengiriman Pengganti</span>
                             <span class="text-success">(Setelah Komplain)</span>
                         </div>
                         <div class="info-item">
                             <span>Kurir</span>
-                            <span>{{ $pengirimanPengganti->nama_kurir ?? '-' }}</span>
+                            <span>{{ $pengirimanPengganti->nama_kurir }}</span>
                         </div>
                         <div class="info-item">
                             <span>No. Resi Pengganti</span>
-                            <span class="highlight-resi">{{ $pengirimanPengganti->no_resi ?? 'Belum tersedia' }}</span>
+                            <span class="highlight-resi">{{ $pengirimanPengganti->no_resi }}</span>
                         </div>
                     @endif
                 </div>
             </div>
+            @endif
         </div>
 
         <!-- RIGHT COLUMN: PRODUCTS & BILLING -->

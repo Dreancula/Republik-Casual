@@ -325,8 +325,15 @@
     @endif
 
     @if($errors->any())
-        <div class="d-flex align-items-center gap-2 py-2 px-3 mb-4" style="background: rgba(255, 69, 58, 0.08); color: #FF453A; border: 1px solid rgba(255, 69, 58, 0.15); border-radius: 10px; font-size: 13px;">
-            <i class="fa-solid fa-exclamation-circle"></i> {{ $errors->first() }}
+        <div style="background: rgba(255, 69, 58, 0.08); border: 1px solid rgba(255, 69, 58, 0.15); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;">
+            <div class="d-flex align-items-center gap-2 mb-2" style="color: #FF453A; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.3px;">
+                <i class="fa-solid fa-circle-exclamation"></i> Perbaiki kesalahan berikut:
+            </div>
+            <ul style="margin: 0; padding-left: 20px; color: #FF453A; font-size: 13px; line-height: 1.8;">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -481,6 +488,20 @@ document.querySelectorAll('.product-checkbox').forEach(function(cb) {
     cb.addEventListener('change', function() {
         var card = this.closest('.product-card');
         card.classList.toggle('checked', this.checked);
+    });
+});
+
+document.querySelectorAll('.qty-input').forEach(function(qty) {
+    qty.addEventListener('input', function() {
+        var min = parseInt(this.min) || 1;
+        var max = parseInt(this.max) || 99999;
+        var val = parseInt(this.value);
+        if (this.value === '') return;
+        if (isNaN(val) || val < min) this.value = min;
+        if (val > max) this.value = max;
+    });
+    qty.addEventListener('blur', function() {
+        if (this.value === '') this.value = this.min || 1;
     });
 });
 

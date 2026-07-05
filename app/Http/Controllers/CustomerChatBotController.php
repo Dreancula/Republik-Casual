@@ -45,7 +45,7 @@ class CustomerChatBotController extends Controller
         }
 
         if (preg_match('/\bwa\b/', $message) || str_contains($message, 'whatsapp') || str_contains($message, 'kontak') || str_contains($message, 'admin')) {
-            return "Halo Kak! Untuk menghubungi admin Republik Casual, silakan chat WhatsApp kami di nomor yang tertera di halaman Kontak website ya. Admin kami siap bantu Kakak dari jam 08.00 - 21.00 WIB. Ada yang bisa kami bantu lagi Kak?";
+            return "Halo Kak! Silakan hubungi admin Republik Casual langsung via WhatsApp ya Kak:\nhttps://wa.me/6285694520082\n\nAdmin kami siap bantu Kakak dari jam 08.00 - 21.00 WIB. Ada yang bisa kami bantu lagi Kak?";
         }
 
         if (str_contains($message, 'pengiriman') || str_contains($message, 'kurir') || str_contains($message, 'sampai')) {
@@ -61,7 +61,7 @@ class CustomerChatBotController extends Controller
         }
 
         if (str_contains($message, 'return') || str_contains($message, 'tukar') || str_contains($message, 'komplain') || str_contains($message, 'retur')) {
-            return "Untuk pengajuan return/komplain, silakan pilih kategori 'Pengajuan Return (Komplain)' di atas ya Kak, lalu jelaskan kendalanya. Admin kami akan segera merespon. Atau bisa juga hubungi via WhatsApp untuk proses lebih cepat!";
+            return "Untuk pengajuan return/komplain, silakan pilih kategori 'Pengajuan Return (Komplain)' di atas ya Kak, lalu jelaskan kendalanya. Admin kami akan segera merespon. Atau bisa juga hubungi via WhatsApp untuk proses lebih cepat:\nhttps://wa.me/6285694520082";
         }
 
         return null;

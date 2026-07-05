@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pesanan;
 use App\Models\DetailPesanan;
+use App\Models\PemasukanBarang;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -26,9 +27,11 @@ class LaporanController extends Controller
 
         // 3. Hitung Ringkasan Statistik Utama (Highlights)
         $totalPendapatan = $pesananSelesai->sum('total_bayar');
+        $pendapatanProduk = $pesananSelesai->sum('total_harga_produk');
+        $pendapatanOngkir = $pesananSelesai->sum('total_ongkir');
         $pesananBerhasilCount = $pesananSelesai->count();
 
-        $rataRataOrder = $pesananBerhasilCount > 0 ? ($totalPendapatan / $pesananBerhasilCount) : 0;
+        $rataRataOrder = $pesananBerhasilCount > 0 ? ($pendapatanProduk / $pesananBerhasilCount) : 0;
 
         // Hitung total kuantitas produk terjual menggunakan kolom 'quantity'
         $totalProdukTerjual = DetailPesanan::whereHas('pesanan', function ($query) use ($start, $end) {
@@ -52,15 +55,64 @@ class LaporanController extends Controller
             ->take(5)
             ->get();
 
-        // 5. Kirim seluruh variabel ke view laporan
+        // 5. Hitung total pengeluaran barang (modal restock)
+        $pengeluaranBarang = DB::table('detail_pemasukan_barang')
+            ->select(DB::raw('COALESCE(SUM(jumlah_masuk * harga_beli), 0) as total'))
+            ->first()->total ?? 0;
+
+        // 6. Monthly trend untuk diagram garis (12 bulan terakhir)
+        $monthlyTrend = Pesanan::select(
+            DB::raw("DATE_FORMAT(tgl_pesanan, '%Y-%m') as bulan"),
+            DB::raw('SUM(total_harga_produk) as total_produk'),
+            DB::raw('SUM(total_ongkir) as total_ongkir'),
+            DB::raw('COUNT(*) as jumlah_pesanan')
+        )
+            ->where('status_pesanan', 'selesai')
+            ->whereBetween('tgl_pesanan', [
+                Carbon::now()->subMonths(11)->startOfMonth(),
+                Carbon::now()->endOfMonth()
+            ])
+            ->groupBy(DB::raw("DATE_FORMAT(tgl_pesanan, '%Y-%m')"))
+            ->orderBy('bulan')
+            ->get();
+
+        // 7. Detail pemasukan: daftar pesanan selesai di periode ini
+        $detailPemasukan = Pesanan::with('user')
+            ->where('status_pesanan', 'selesai')
+            ->whereBetween('tgl_pesanan', [$start, $end])
+            ->orderBy('tgl_pesanan', 'desc')
+            ->get(['id_pesanan', 'id_user', 'total_harga_produk', 'total_ongkir', 'total_bayar', 'tgl_pesanan']);
+
+        // 8. Detail pengeluaran: daftar stok masuk dengan produk
+        $detailPengeluaran = DB::table('detail_pemasukan_barang as dpb')
+            ->join('pemasukan_barang as pb', 'dpb.id_pemasukan', '=', 'pb.id_pemasukan')
+            ->join('produk as p', 'dpb.id_produk', '=', 'p.id_produk')
+            ->select(
+                'pb.tgl_pemasukan',
+                'p.nama_produk',
+                'dpb.jumlah_masuk',
+                'dpb.harga_beli',
+                DB::raw('dpb.jumlah_masuk * dpb.harga_beli as total')
+            )
+            ->whereBetween('pb.tgl_pemasukan', [$start, $end])
+            ->orderBy('pb.tgl_pemasukan', 'desc')
+            ->get();
+
+        // 9. Kirim seluruh variabel ke view laporan
         return view('backend.laporan.index', compact(
             'tanggalAwal',
             'tanggalAkhir',
             'totalPendapatan',
+            'pendapatanProduk',
+            'pendapatanOngkir',
+            'pengeluaranBarang',
             'pesananBerhasilCount',
             'totalProdukTerjual',
             'rataRataOrder',
-            'produkTerlaris'
+            'produkTerlaris',
+            'monthlyTrend',
+            'detailPemasukan',
+            'detailPengeluaran'
         ));
     }
 }

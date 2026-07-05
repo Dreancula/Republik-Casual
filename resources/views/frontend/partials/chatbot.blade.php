@@ -172,7 +172,7 @@
             <button type="button" class="btn-quick-reply" data-msg="Apakah ada promo minggu ini?">Cek Promo</button>
             <button type="button" class="btn-quick-reply" data-msg="Bagaimana cara order produk?">Cara Order</button>
             <button type="button" class="btn-quick-reply" data-msg="Apakah produk celana cargo ready stok?">Cek Stok Cargo</button>
-            <button type="button" class="btn-quick-reply" data-msg="Bisa minta kontak WhatsApp admin fisik?">Hubungi Admin</button>
+            <a href="https://wa.me/6285694520082" target="_blank" class="btn-quick-reply" style="text-decoration: none; display: inline-block;">Hubungi Admin</a>
         </div>
     </div>
     

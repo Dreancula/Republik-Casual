@@ -13,6 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32:wght@400;500;600;700&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
     <style>
         /* ===== THEME VARIABLES ===== */
@@ -42,31 +43,7 @@
             --glass-blur: 32px;
         }
 
-        [data-theme="light"] {
-            --rc-bg: #f2f2f6;
-            --rc-surface: rgba(0,0,0,0.015);
-            --rc-glass-bg: rgba(255,255,255,0.62);
-            --rc-glass-border: rgba(0,0,0,0.06);
-            --rc-glass-hover: rgba(0,0,0,0.025);
-            --rc-glass-hover-heavy: rgba(0,0,0,0.05);
-            --rc-text: #1c1c1e;
-            --rc-text-muted: #636366;
-            --rc-terracotta: #B84D2A;
-            --rc-terracotta-soft: rgba(184,77,42,0.08);
-            --rc-terracotta-glow: rgba(184,77,42,0.12);
-            --rc-accent: #3A72C4;
-            --rc-accent-soft: rgba(58,114,196,0.07);
-            --rc-success: #248A3D;
-            --rc-success-soft: rgba(36,138,61,0.07);
-            --rc-warning: #B8860B;
-            --rc-warning-soft: rgba(184,134,11,0.07);
-            --rc-danger: #C41E1E;
-            --rc-danger-soft: rgba(196,30,30,0.05);
-            --rc-shadow: rgba(0,0,0,0.05);
-            --rc-glow: rgba(200,90,50,0.03);
-            --sidebar-width: 280px;
-            --glass-blur: 32px;
-        }
+
 
         /* ===== BASE ===== */
         * { box-sizing: border-box; }
@@ -282,9 +259,7 @@
             pointer-events: none;
         }
 
-        [data-theme="light"] .rc-glass-card::before {
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5) 30%, rgba(255,255,255,0.5) 70%, transparent);
-        }
+
 
         .rc-glass-card:hover {
             box-shadow:
@@ -304,28 +279,6 @@
             overflow-y: auto;
             flex: 1;
             padding-right: 0.25rem;
-        }
-
-        /* ===== THEME TOGGLE (pill) ===== */
-        .rc-theme-btn {
-            background: var(--rc-glass-bg);
-            border: 1px solid var(--rc-glass-border);
-            color: var(--rc-text-muted);
-            width: 38px;
-            height: 38px;
-            border-radius: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            padding: 0;
-        }
-
-        .rc-theme-btn:hover {
-            border-color: var(--rc-terracotta);
-            color: var(--rc-terracotta);
-            background: var(--rc-terracotta-soft);
         }
 
         /* ===== BADGE ===== */
@@ -647,16 +600,6 @@
             opacity: 0.5;
         }
 
-        [data-theme="light"] .rc-modal-content {
-            background: #ffffff !important;
-            border: 1px solid rgba(0, 0, 0, 0.08) !important;
-        }
-
-        [data-theme="light"] .rc-modal-content .btn-close {
-            filter: none;
-            opacity: 0.5;
-        }
-
         /* ===== FORM LABEL ===== */
         .rc-label {
             font-size: 0.72rem;
@@ -820,12 +763,6 @@
             </div>
 
             <div class="d-flex align-items-center gap-3">
-                <button type="button" class="rc-theme-btn" id="rcThemeToggle" aria-label="Toggle theme">
-                    <svg id="rcThemeIcon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                    </svg>
-                </button>
-
                 <a href="{{ url('/') }}" target="_blank" class="rc-view-store-btn d-none d-md-flex">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     Buka Beranda Utama
@@ -858,40 +795,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        (function() {
-            const STORAGE_KEY = 'rc-theme';
-            const toggleBtn = document.getElementById('rcThemeToggle');
-            const iconEl = document.getElementById('rcThemeIcon');
-
-            function getPreferredTheme() {
-                return localStorage.getItem(STORAGE_KEY) || 'dark';
-            }
-
-            function setTheme(theme) {
-                document.body.setAttribute('data-theme', theme);
-                localStorage.setItem(STORAGE_KEY, theme);
-
-                if (iconEl) {
-                    if (theme === 'light') {
-                        iconEl.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-                    } else {
-                        iconEl.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-                    }
-                }
-            }
-
-            const currentTheme = getPreferredTheme();
-            setTheme(currentTheme);
-
-            if (toggleBtn) {
-                toggleBtn.addEventListener('click', function() {
-                    const nextTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-                    setTheme(nextTheme);
-                });
-            }
-        })();
-    </script>
 
     {{-- TEMPAT PENAMPUNG MODAL UNTUK MENGHINDARI BUG LAYER BACKDROP --}}
     @stack('modals')
