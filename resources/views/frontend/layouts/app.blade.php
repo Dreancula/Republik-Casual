@@ -10,8 +10,8 @@ use Illuminate\Support\Str;
     <title>@yield('title', 'Republik Casual')</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('image/favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('image/favicon.png') }}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

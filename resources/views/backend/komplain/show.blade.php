@@ -58,8 +58,14 @@
                 <div class="d-flex justify-content-between align-items-start" style="gap: 0;">
                     @foreach($steps as $i => $step)
                         <div class="d-flex flex-column align-items-center" style="flex: 1; position: relative;">
+                            {{-- Garis ke kanan dari lingkaran saat ini (kecuali terakhir) --}}
+                            @if(!$loop->last)
+                                <div style="position: absolute; top: 18px; left: calc(50% + 19px); right: 0; height: 2px; background: {{ $step['done'] ? 'var(--rc-success)' : 'rgba(255,255,255,0.08)' }}; z-index: 0; {{ $step['done'] ? 'box-shadow: 0 0 6px rgba(48,209,88,0.15);' : '' }}"></div>
+                            @endif
+                            {{-- Garis ke kiri dari lingkaran sebelumnya (kecuali pertama) --}}
                             @if(!$loop->first)
-                                <div style="position: absolute; top: 18px; right: 50%; width: 100%; height: 2px; background: {{ $step['done'] ? 'var(--rc-success)' : 'rgba(255,255,255,0.08)' }}; z-index: 0;"></div>
+                                @php $prevDone = $steps[$i-1]['done']; @endphp
+                                <div style="position: absolute; top: 18px; left: 0; right: calc(50% + 19px); height: 2px; background: {{ $prevDone ? 'var(--rc-success)' : 'rgba(255,255,255,0.08)' }}; z-index: 0; {{ $prevDone ? 'box-shadow: 0 0 6px rgba(48,209,88,0.15);' : '' }}"></div>
                             @endif
                             <div style="width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: {{ $step['done'] ? 'var(--rc-success-soft)' : 'rgba(255,255,255,0.03)' }}; border: 2px solid {{ $step['done'] ? 'var(--rc-success)' : 'rgba(255,255,255,0.1)' }}; color: {{ $step['done'] ? 'var(--rc-success)' : 'var(--rc-text-muted)' }}; position: relative; z-index: 1;">
                                 <i class="{{ $step['icon'] }}" style="font-size: 14px;"></i>
